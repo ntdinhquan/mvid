@@ -1,0 +1,141 @@
+{
+  "HomePage": {
+    "title": "MVID"
+  },
+  "SamplePage": {
+    "back_button": "Back to home page"
+  },
+  "ButtonBasic": {
+    "click_me": "Click me",
+    "no_action": "No action yet",
+    "left_click": "You left clicked!",
+    "double_click": "You double clicked!",
+    "right_click": "You right clicked!",
+    "embedded_demo": "Embedded Angular Sample"
+  },
+  "ScrollDemo": {
+    "title": "Scroll Interaction Demo",
+    "click_button": "Click Me",
+    "click_count": "Clicked {count} times",
+    "scroll_position": "Scroll position: {scrollY}px",
+    "section_label": "Content Section {index}",
+    "final_section_title": "You've reached the end!",
+    "email_label": "Your Email",
+    "email_placeholder": "Enter your email...",
+    "no_value": "No email typed yet",
+    "submit": "Submit",
+    "submitted": "Submitted",
+    "error_invalid": "Email is invalid",
+    "error_required": "Email is required"
+  },
+  "CheckboxBasic": {
+    "checkbox_checked": "Checked!",
+    "checkbox_unchecked": "Not Checked!"
+  },
+  "InputBasic": {
+    "input_placeholder": "Type something...",
+    "input_value": "Value",
+    "input_empty": "Empty"
+  },
+  "InputButton": {
+    "button_label": "Click Me (Input button)",
+    "no_action": "No action yet",
+    "left_click": "You left clicked!",
+    "double_click": "You double clicked!",
+    "right_click": "You right clicked!"
+  },
+  "InputEmail": {
+    "label": "Your Email",
+    "placeholder": "Enter your email...",
+    "no_value": "No email typed yet",
+    "error_required": "Email is required",
+    "error_invalid": "Email is invalid",
+    "submitted": "Email submitted",
+    "submit": "Submit"
+  },
+  "Selector": {
+    "select_placeholder": "Select an option",
+    "search_placeholder": "Search..."
+  },
+  "LocaleSwitcher": {
+    "label": "Change language",
+    "locale": "{locale, select, ja {Japanese} en {English} other {Unknown}}"
+  },
+  "SelectBasic": {
+    "select_placeholder": "Select an option",
+    "apple": "apple",
+    "banana": "banana",
+    "orange": "orange",
+    "selected": "Selected",
+    "not_selected": "Not Selected"
+  },
+  "TextareaBasic": {
+    "placeholder": "Type something...",
+    "empty": "No text yet"
+  },
+  "DivBasic": {
+    "content": "This is a basic div element"
+  },
+  "H2Basic": {
+    "content": "This is a basic heading"
+  },
+  "SpanBasic": {
+    "content": "This is a basic span"
+  },
+  "LabelBasic": {
+    "content": "This is a basic label"
+  },
+  "AlertDialog": {
+    "show_dialog": "Show Dialog",
+    "title": "Are you absolutely sure?",
+    "description": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+    "cancel": "Cancel",
+    "continue": "Continue"
+  },
+  "AlertBasic": {
+    "alert_button": "Alert",
+    "confirm_button": "Confirm",
+    "prompt_button": "Guess your name!!",
+    "alert_message": "This is an alert!",
+    "confirm_message": "Do you want to continue?",
+    "confirm_ok": "You clicked OK!",
+    "confirm_cancel": "You clicked Cancel!",
+    "prompt_message": "Enter your name:",
+    "prompt_result": "Your name is: {value} ??"
+  },
+  "TableAdvance": {
+    "filter_email_placeholder": "Filter emails...",
+    "columns_button": "Columns",
+    "column_status": "Status",
+    "column_email": "Email",
+    "column_amount": "Amount",
+    "actions_label": "Actions",
+    "action_copy_id": "Copy payment ID",
+    "action_view_customer": "View customer",
+    "action_view_payment": "View payment details",
+    "no_results": "No results.",
+    "rows_selected": "{selected} of {total} row(s) selected.",
+    "previous": "Previous",
+    "next": "Next",
+    "open_menu": "Open menu",
+    "select_all": "Select all",
+    "select_row": "Select row"
+  },
+  "TableBasic": {
+    "invoice": "Invoice",
+    "status": "Status",
+    "method": "Method",
+    "amount": "Amount",
+    "total": "Total",
+    "payment_status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "overdue": "Overdue"
+    },
+    "payment_method": {
+      "credit_card": "Credit Card",
+      "paypal": "PayPal",
+      "bank_transfer": "Bank Transfer"
+    }
+  }
+}

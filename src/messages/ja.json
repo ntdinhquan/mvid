@@ -1,0 +1,141 @@
+{
+  "HomePage": {
+    "title": "AUT サンプルウェブ"
+  },
+  "SamplePage": {
+    "back_button": "ホームページに戻る"
+  },
+  "ButtonBasic": {
+    "click_me": "クリックしてください",
+    "no_action": "まだアクションはありません",
+    "left_click": "左クリックしました!",
+    "double_click": "ダブルクリックしました!",
+    "right_click": "右クリックしました!",
+    "embedded_demo": "埋め込み Angular サンプル"
+  },
+  "ScrollDemo": {
+    "title": "スクロールインタラクションのデモ",
+    "click_button": "クリックミー",
+    "click_count": "{count} 回クリックしました",
+    "scroll_position": "スクロール位置: {scrollY}px",
+    "section_label": "コンテンツセクション {index}",
+    "final_section_title": "最後まで到達しました!",
+    "email_label": "あなたのメール",
+    "email_placeholder": "メールを入力してください...",
+    "no_value": "まだメールが入力されていません",
+    "submit": "送信",
+    "submitted": "送信済み",
+    "error_invalid": "メールの形式が正しくありません",
+    "error_required": "メールは必須です"
+  },
+  "CheckboxBasic": {
+    "checkbox_checked": "チェック済み!",
+    "checkbox_unchecked": "未チェック!"
+  },
+  "InputBasic": {
+    "input_placeholder": "何か入力してください...",
+    "input_value": "値",
+    "input_empty": "空"
+  },
+  "InputButton": {
+    "button_label": "クリックしてください!",
+    "no_action": "まだアクションはありません",
+    "left_click": "左クリックしました!",
+    "double_click": "ダブルクリックしました!",
+    "right_click": "右クリックしました!"
+  },
+  "InputEmail": {
+    "label": "メールアドレス",
+    "placeholder": "メールアドレスを入力してください...",
+    "no_value": "まだメールアドレスが入力されていません",
+    "error_required": "メールアドレスは必須です",
+    "error_invalid": "メールアドレスの形式が正しくありません",
+    "submitted": "メールアドレスが送信されました",
+    "submit": "送信"
+  },
+  "Selector": {
+    "select_placeholder": "オプションを選択",
+    "search_placeholder": "検索..."
+  },
+  "LocaleSwitcher": {
+    "label": "言語を変更",
+    "locale": "{locale, select, ja {Japanese} en {English} other {Unknown}}"
+  },
+  "SelectBasic": {
+    "select_placeholder": "オプションを選択",
+    "apple": "apple",
+    "banana": "banana",
+    "orange": "orange",
+    "selected": "選択された ",
+    "not_selected": "選択されていない"
+  },
+  "TextareaBasic": {
+    "placeholder": "何か入力してください...",
+    "empty": "まだテキストがありません "
+  },
+  "DivBasic": {
+    "content": "これは基本的な div 要素です "
+  },
+  "H2Basic": {
+    "content": "これは基本的な見出しです"
+  },
+  "SpanBasic": {
+    "content": "これが基本的なスパンです"
+  },
+  "LabelBasic": {
+    "content": "基本ラベルです"
+  },
+  "AlertDialog": {
+    "show_dialog": "ダイアログを表示",
+    "title": "本当によろしいですか？",
+    "description": "この操作は元に戻せません。アカウントは完全に削除され、サーバーからすべてのデータが消去されます。",
+    "cancel": "キャンセル",
+    "continue": "続行"
+  },
+  "AlertBasic": {
+    "alert_button": "アラート",
+    "confirm_button": "確認",
+    "prompt_button": "あなたの名前を当ててみて!!",
+    "alert_message": "これはアラートです。",
+    "confirm_message": "続行しますか？",
+    "confirm_ok": "OK をクリックしました。",
+    "confirm_cancel": "キャンセルをクリックしました。",
+    "prompt_message": "名前を入力してください：",
+    "prompt_result": "あなたの名前は: {value} ??"
+  },
+  "TableAdvance": {
+    "filter_email_placeholder": "メールで検索...",
+    "columns_button": "列",
+    "column_status": "ステータス",
+    "column_email": "メール",
+    "column_amount": "金額",
+    "actions_label": "操作",
+    "action_copy_id": "支払いIDをコピー",
+    "action_view_customer": "顧客を表示",
+    "action_view_payment": "支払い詳細を表示",
+    "no_results": "結果がありません。",
+    "rows_selected": "{total} 件中 {selected} 件を選択中",
+    "previous": "前へ",
+    "next": "次へ",
+    "open_menu": "メニューを開く",
+    "select_all": "すべて選択",
+    "select_row": "行を選択"
+  },
+  "TableBasic": {
+    "invoice": "請求書",
+    "status": "ステータス",
+    "method": "支払い方法",
+    "amount": "金額",
+    "total": "合計",
+    "payment_status": {
+      "paid": "支払い済み",
+      "pending": "保留中",
+      "overdue": "期限超過"
+    },
+    "payment_method": {
+      "credit_card": "クレジットカード",
+      "paypal": "ペイパル",
+      "bank_transfer": "銀行振込"
+    }
+  }
+}
