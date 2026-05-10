@@ -65,7 +65,7 @@ export default function UploadStep({ project, setProject, next }: any) {
                   <ol className="list-decimal pl-4 space-y-1 text-gray-200">
                     <li>Vào trang <span className="text-blue-300 font-mono">aistudio.google.com</span></li>
                     <li>Đăng nhập bằng tài khoản Google</li>
-                    <li>Bấm vào "Get API Key" ở menu trái</li>
+                    <li>Bấm vào 'Get API Key' ở menu trái</li>
                     <li>Tạo Key mới và Copy dán vào đây</li>
                   </ol>
                   {/* Mũi tên trỏ xuống của Tooltip */}
