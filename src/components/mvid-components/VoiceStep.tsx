@@ -27,7 +27,7 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
       formData.append("voice", project.voice);
       formData.append("rate", project.rate.toString());
 
-      const res = await fetch("http://localhost:8000/preview-voice", {
+      const res = await fetch("https://quan2002-mvid-api.hf.space/preview-voice", {
         method: "POST",
         body: formData,
       });

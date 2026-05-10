@@ -16,7 +16,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       formData.append("api_key", project.geminiKey);
 
       // Gọi Backend
-      const res = await fetch("http://localhost:8000/extract-script", {
+      const res = await fetch("https://quan2002-mvid-api.hf.space/extract-script", {
         method: "POST",
         body: formData,
       });

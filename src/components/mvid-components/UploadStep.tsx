@@ -5,7 +5,6 @@ import { useRef, useState } from "react"
 export default function UploadStep({ project, setProject, next }: any) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   
-  // State phụ để cho phép người dùng mở lại ô nhập key nếu muốn sửa
   const [isEditingKey, setIsEditingKey] = useState(!project.geminiKey);
 
   const handleFile = (file: File) => {
@@ -14,11 +13,9 @@ export default function UploadStep({ project, setProject, next }: any) {
       file,
       videoUrl: URL.createObjectURL(file)
     })
-    // Tự động thu nhỏ ô nhập key nếu đã có key và vừa upload video xong
     if (project.geminiKey) setIsEditingKey(false);
   }
 
-  // Điều kiện để thu nhỏ ô API Key: Đã có video VÀ đã có key VÀ không ở chế độ edit
   const isKeyCollapsed = project.videoUrl && project.geminiKey && !isEditingKey;
 
   return (
@@ -32,7 +29,6 @@ export default function UploadStep({ project, setProject, next }: any) {
         </p>
       </div>
 
-      {/* INPUT API KEY (THU GỌN HOẶC MỞ RỘNG) */}
       <div className={`transition-all duration-300 ${isKeyCollapsed ? 'bg-transparent border-none p-0' : 'bg-blue-50/50 p-4 rounded-xl border border-blue-100'}`}>
         
         {isKeyCollapsed ? (
@@ -64,7 +60,7 @@ export default function UploadStep({ project, setProject, next }: any) {
                 </span>
                 
                 {/* Nội dung Tooltip (Mặc định ẩn, hiện khi hover) */}
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                   <p className="mb-1 font-semibold">Cách lấy API Key miễn phí:</p>
                   <ol className="list-decimal pl-4 space-y-1 text-gray-200">
                     <li>Vào trang <span className="text-blue-300 font-mono">aistudio.google.com</span></li>
