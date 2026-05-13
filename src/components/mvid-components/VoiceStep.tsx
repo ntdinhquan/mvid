@@ -1,8 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 
 export default function VoiceStep({ project, setProject, next, back }: any) {
   const [loading, setLoading] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const voices = [
     { id: "vi-VN-HoaiMyNeural", label: "🇻🇳 Nữ - Hoài My (Mặc định)" },
@@ -17,6 +18,21 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
     { id: "zh-CN-XiaoxiaoNeural", label: "🇨🇳 Nữ - Xiaoxiao (Chinese)" },
   ];
 
+
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopAudio();
+    };
+  }, []);
+
+
   const handlePreview = async () => {
     if (!project.script) return alert("Vui lòng quay lại bước Script để tạo nội dung trước!");
 
@@ -27,7 +43,7 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
       formData.append("voice", project.voice);
       formData.append("rate", project.rate.toString());
 
-      const res = await fetch("https://quan2002-mvid-api.hf.space/preview-voice", {
+      const res = await fetch("http://localhost:8000/preview-voice", {
         method: "POST",
         body: formData,
       });
@@ -36,8 +52,11 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
+      stopAudio(); // handle dừng âm thanh khi đang phát
       const audio = new Audio(url);
+      audioRef.current = audio;
       audio.play();
+
     } catch (error) {
       alert("Lỗi khi nghe thử: " + error);
     } finally {
@@ -104,10 +123,16 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
 
       {/* FOOTER */}
       <div className="flex justify-between mt-4">
-        <button onClick={back} className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-white transition">
+        <button onClick={()=>{
+          stopAudio();
+          back();
+        }} className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-white transition">
           ← Back
         </button>
-        <button onClick={next} className="px-8 py-2 bg-black text-white rounded-lg hover:bg-zinc-800 shadow-md transition">
+        <button onClick={()=>{
+          stopAudio();
+          next();
+        }} className="px-8 py-2 bg-black text-white rounded-lg hover:bg-zinc-800 shadow-md transition">
           Next →
         </button>
       </div>

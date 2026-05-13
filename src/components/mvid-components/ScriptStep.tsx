@@ -1,22 +1,23 @@
+"use client";
 import { useState } from "react";
 
 export default function ScriptStep({ project, setProject, next, back }: any) {
-  const [loading, setLoading] = useState(false);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [loadingUpload, setLoadingUpload] = useState(false);
   const [error, setError] = useState("");
 
+  // Nút 1: Dùng AI trích xuất và dịch (Luồng cũ)
   const handleExtractScript = async () => {
     if (!project.file || !project.geminiKey) return;
-    
-    setLoading(true);
+    setLoadingAI(true);
     setError("");
-    
+
     try {
       const formData = new FormData();
       formData.append("file", project.file);
       formData.append("api_key", project.geminiKey);
 
-      // Gọi Backend
-      const res = await fetch("https://quan2002-mvid-api.hf.space/extract-script", {
+      const res = await fetch("http://localhost:8000/extract-script", {
         method: "POST",
         body: formData,
       });
@@ -30,47 +31,103 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       setProject({
         ...project,
         script: data.script,
-        videoServerPath: data.video_path // Lưu lại để bước cuối mang đi ghép âm thanh
+        videoServerPath: data.video_path, // Đã có file trên server
       });
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLoadingAI(false);
     }
   };
+
+  const handleNext = async () => {
+    if (project.videoServerPath) {
+      next();
+      return;
+    }
+
+    if (project.script && !project.videoServerPath) {
+      setLoadingUpload(true);
+      setError("");
+
+      try {
+        const formData = new FormData();
+        formData.append("file", project.file);
+
+        const res = await fetch("http://localhost:8000/upload-only", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error("Lỗi khi tải video gốc lên máy chủ");
+        }
+
+        const data = await res.json();
+        setProject({
+          ...project,
+          videoServerPath: data.video_path, // Lưu path
+        });
+        
+        next();
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoadingUpload(false);
+      }
+    }
+  };
+
+  const isWorking = loadingAI || loadingUpload;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold">🎤 Script</h2>
-          <p className="text-sm text-gray-500">Trích xuất lời thoại từ video và chỉnh sửa</p>
+          <h2 className="text-xl font-semibold">🎤 Kịch Bản (Script)</h2>
+          <p className="text-sm text-gray-500">Dùng AI dịch tự động HOẶC tự nhập lời thoại của bạn</p>
         </div>
+        
         <button
           onClick={handleExtractScript}
-          disabled={loading}
-          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
+          disabled={isWorking || !project.geminiKey}
+          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:opacity-90 disabled:opacity-50 font-medium shadow-md flex items-center gap-2"
+          title={!project.geminiKey ? "Cần có API Key ở bước trước" : ""}
         >
-          {loading ? "Đang xử lý (Vui lòng đợi)..." : "Generate Script"}
+          {loadingAI ? "⏳ Đang dịch..." : "✨ Dịch tự động bằng AI"}
         </button>
       </div>
 
-      {error && <div className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">{error}</div>}
+      {error && <div className="text-red-500 text-sm p-3 border border-red-200 bg-red-50 rounded-lg">❌ {error}</div>}
 
-      <textarea
-        rows={10}
-        className="w-full p-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black resize-y"
-        placeholder="Script sẽ hiển thị ở đây. Bạn có thể tự do chỉnh sửa..."
-        value={project.script}
-        onChange={(e) => setProject({ ...project, script: e.target.value })}
-      />
+      <div className="relative">
+        <textarea
+          rows={10}
+          className={`w-full p-4 border-2 rounded-xl focus:outline-none resize-y transition ${project.script ? 'border-green-400 bg-green-50/20' : 'border-gray-200 focus:border-black'}`}
+          placeholder="Nhập kịch bản thủ công vào đây (nếu bạn không muốn dùng AI dịch)..."
+          value={project.script}
+          onChange={(e) => {
+            setProject({ ...project, script: e.target.value });
+          }}
+        />
+        {project.script && !loadingAI && (
+          <div className="absolute top-3 right-3 text-green-500 text-xs font-bold bg-green-100 px-2 py-1 rounded">
+            Đã có kịch bản ({project.script.length} ký tự)
+          </div>
+        )}
+      </div>
 
-      <div className="flex justify-between">
-        <button onClick={back} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Back</button>
-        <button onClick={next} disabled={!project.script} className="px-4 py-2 bg-black text-white rounded-lg disabled:opacity-40">
-          Next
+      <div className="flex justify-between border-t pt-4">
+        <button onClick={back} disabled={isWorking} className="px-6 py-2 border rounded-lg hover:bg-gray-50 font-medium">← Quay lại</button>
+        
+        <button 
+          onClick={handleNext} 
+          disabled={!project.script || isWorking} 
+          className="px-8 py-2 bg-black text-white rounded-lg hover:bg-zinc-800 disabled:opacity-40 transition font-bold shadow-md flex items-center gap-2"
+        >
+          {loadingUpload ? "⏳ Đang tải video..." : "Tiếp tục →"}
         </button>
       </div>
     </div>
-  )
+  );
 }
