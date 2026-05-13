@@ -17,7 +17,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       formData.append("file", project.file);
       formData.append("api_key", project.geminiKey);
 
-      const res = await fetch("http://localhost:8000/extract-script", {
+      const res = await fetch("https://quan2002-mvid-api.hf.space/extract-script", {
         method: "POST",
         body: formData,
       });
@@ -54,7 +54,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
         const formData = new FormData();
         formData.append("file", project.file);
 
-        const res = await fetch("http://localhost:8000/upload-only", {
+        const res = await fetch("https://quan2002-mvid-api.hf.space/upload-only", {
           method: "POST",
           body: formData,
         });

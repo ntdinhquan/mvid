@@ -24,7 +24,7 @@ export default function PreviewStep({ project, setProject, back }: any) {
                 formData.append("bgm", project.bgm);
             }
 
-            const res = await fetch("http://localhost:8000/generate-video", {
+            const res = await fetch("https://quan2002-mvid-api.hf.space/generate-video", {
                 method: "POST",
                 body: formData,
             });
