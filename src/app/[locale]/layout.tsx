@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MVID - AI Video Generator",
-  description: "AI Video Generator",
+  title: "MVID - Make video",
+  description: "MVID (MAKE VIDEO)",
 };
 
 export default async function RootLayout({

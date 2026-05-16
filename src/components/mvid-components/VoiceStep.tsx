@@ -8,11 +8,6 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
   const voices = [
     { id: "vi-VN-HoaiMyNeural", label: "🇻🇳 Nữ - Hoài My (Mặc định)" },
     { id: "vi-VN-NamMinhNeural", label: "🇻🇳 Nam - Nam Minh" },
-    { id: "vi-VN-HoangHaNeural", label: "🇻🇳 Nữ - Hoàng Hà" },
-    { id: "vi-VN-HoangHaiNeural", label: "🇻🇳 Nam - Hoàng Hải" },
-    { id: "vi-VN-HoangLamNeural", label: "🇻🇳 Nữ - Hoàng Lam" },
-    { id: "vi-VN-HoangLongNeural", label: "🇻🇳 Nam - Hoàng Long" },
-    { id: "vi-VN-NamNinhNeural", label: "🇻🇳 Nam - Nam Ninh" },
     { id: "en-US-AriaNeural", label: "🇺🇸 Nữ - Aria (English US)" },
     { id: "en-US-GuyNeural", label: "🇺🇸 Nam - Guy (English US)" },
     { id: "zh-CN-XiaoxiaoNeural", label: "🇨🇳 Nữ - Xiaoxiao (Chinese)" },
@@ -126,14 +121,14 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
         <button onClick={()=>{
           stopAudio();
           back();
-        }} className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-white transition">
-          ← Back
+        }} className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-white transition cursor-pointer">
+          ← Quay về
         </button>
         <button onClick={()=>{
           stopAudio();
           next();
-        }} className="px-8 py-2 bg-black text-white rounded-lg hover:bg-zinc-800 shadow-md transition">
-          Next →
+        }} className="px-8 py-2 bg-black text-white rounded-lg hover:bg-zinc-800 shadow-md transition cursor-pointer">
+          Tiếp tục →
         </button>
       </div>
     </div>

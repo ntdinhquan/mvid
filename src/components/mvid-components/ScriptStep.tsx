@@ -6,16 +6,23 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
   const [loadingUpload, setLoadingUpload] = useState(false);
   const [error, setError] = useState("");
 
-  // Nút 1: Dùng AI trích xuất và dịch (Luồng cũ)
   const handleExtractScript = async () => {
-    if (!project.file || !project.geminiKey) return;
+
+    if (!project.geminiKey || (!project.file && !project.videoServerPath)) return;
+
     setLoadingAI(true);
     setError("");
 
     try {
       const formData = new FormData();
-      formData.append("file", project.file);
       formData.append("api_key", project.geminiKey);
+
+      if (project.file) {
+        formData.append("file", project.file);
+      }
+      else if (project.videoServerPath) {
+        formData.append("video_path", project.videoServerPath);
+      }
 
       const res = await fetch("https://quan2002-mvid-api.hf.space/extract-script", {
         method: "POST",
@@ -68,7 +75,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
           ...project,
           videoServerPath: data.video_path, // Lưu path
         });
-        
+
         next();
       } catch (err: any) {
         setError(err.message);
@@ -87,7 +94,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
           <h2 className="text-xl font-semibold">🎤 Kịch Bản (Script)</h2>
           <p className="text-sm text-gray-500">Dùng AI dịch tự động HOẶC tự nhập lời thoại của bạn</p>
         </div>
-        
+
         <button
           onClick={handleExtractScript}
           disabled={isWorking || !project.geminiKey}
@@ -118,12 +125,12 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       </div>
 
       <div className="flex justify-between border-t pt-4">
-        <button onClick={back} disabled={isWorking} className="px-6 py-2 border rounded-lg hover:bg-gray-50 font-medium">← Quay lại</button>
-        
-        <button 
-          onClick={handleNext} 
-          disabled={!project.script || isWorking} 
-          className="px-8 py-2 bg-black text-white rounded-lg hover:bg-zinc-800 disabled:opacity-40 transition font-bold shadow-md flex items-center gap-2"
+        <button onClick={back} disabled={isWorking} className="px-6 py-2 border rounded-lg hover:bg-gray-50 font-medium cursor-pointer">← Quay lại</button>
+
+        <button
+          onClick={handleNext}
+          disabled={!project.script || isWorking}
+          className="px-8 py-2 bg-black text-white rounded-lg hover:bg-zinc-800 disabled:opacity-40 transition font-bold shadow-md flex items-center gap-2 cursor-pointer"
         >
           {loadingUpload ? "⏳ Đang tải video..." : "Tiếp tục →"}
         </button>

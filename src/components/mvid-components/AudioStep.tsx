@@ -14,7 +14,7 @@ export default function AudioStep({ project, setProject, next, back }: any) {
 
     return (
         <div className="flex flex-col gap-6 max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold">🎵 Background Music Settings</h2>
+            <h2 className="text-xl font-semibold">🎵 Thêm nhạc nền</h2>
 
             {/* Upload Area */}
             <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 hover:border-black transition cursor-pointer relative">
@@ -82,11 +82,11 @@ export default function AudioStep({ project, setProject, next, back }: any) {
 
             {/* Navigation Buttons */}
             <div className="flex justify-between pt-4">
-                <button onClick={back} className="px-6 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                    Back
+                <button onClick={back} className="px-6 py-2 cursor-pointer bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                    ← Quay về
                 </button>
-                <button onClick={next} className="px-8 py-2 bg-black text-white rounded-lg hover:opacity-90 transition shadow-md">
-                    Next
+                <button onClick={next} className="px-8 py-2 cursor-pointer bg-black text-white rounded-lg hover:opacity-90 transition shadow-md">
+                    Tiếp tục →
                 </button>
             </div>
         </div>

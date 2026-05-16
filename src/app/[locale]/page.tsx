@@ -15,20 +15,20 @@ import { useState } from "react";
 export default function Home() {
 
   const [step, setStep] = useState(0);
-  
+
   const [showDonate, setShowDonate] = useState(false);
 
   const [project, setProject] = useState<any>({
     file: null,
     videoUrl: "",
-    videoServerPath: "", 
-    geminiKey: "",      
+    videoServerPath: "",
+    geminiKey: "",
     script: "",
     voice: "vi-VN-HoaiMyNeural",
-    rate: 0,            
+    rate: 0,
     bgm: null,
     bgmStart: 0,
-    bgmEnd: 10, 
+    bgmEnd: 10,
     volume: 0.3,
     output: "",
   })
@@ -50,7 +50,7 @@ export default function Home() {
 
           {/* Title */}
           <h1 className="text-2xl font-bold mb-6">
-            🎬 AI Video Translate
+            🎬 Video Translate
           </h1>
 
           {/* Stepper */}
@@ -66,28 +66,41 @@ export default function Home() {
         </div>
       </main>
 
+      {/* FOOTER BẢN QUYỀN */}
+      <footer className="w-full py-6 text-center text-sm text-gray-400 font-medium pb-8">
+        Được tạo ra bởi{" "}
+        <a 
+          href="https://www.facebook.com/NTD.Quan2012" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="font-bold text-gray-600 hover:text-blue-600 hover:underline transition-all cursor-pointer"
+        >
+          Đình Quân - (team Nhật)
+        </a> 😎
+      </footer>
+
       {/* FLOATING DONATE WIDGET */}
       <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end">
-        
+
         {/* Bảng Popup QR Code */}
         {showDonate && (
           <div className="mb-4 p-5 bg-white rounded-2xl shadow-2xl border border-gray-100 w-64 animate-in slide-in-from-bottom-5 fade-in duration-300">
             <div className="flex justify-between items-center mb-3">
-              <p className="font-bold text-gray-800 text-sm">Ủng hộ Quân 1 ly cafe ☕</p>
-              <button 
-                onClick={() => setShowDonate(false)} 
+              <p className="font-bold text-gray-800 text-sm">Buy Quân a coffee ☕</p>
+              <button
+                onClick={() => setShowDonate(false)}
                 className="text-gray-400 hover:text-red-500 font-bold px-2"
               >
                 ✕
               </button>
             </div>
-            
+
             {/* Vùng chứa mã QR */}
             <div className="bg-gray-50 rounded-xl p-2 flex justify-center items-center h-56 border border-dashed border-gray-300">
-              
-              <img 
-                src="https://res.cloudinary.com/dxpghnb5n/image/upload/v1778390197/kheudonate_fscnhm.jpg" 
-                alt="QR Donate" 
+
+              <img
+                src="https://res.cloudinary.com/dxpghnb5n/image/upload/v1778390197/kheudonate_fscnhm.jpg"
+                alt="QR Donate"
                 className="max-h-full object-contain rounded-lg"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -96,8 +109,8 @@ export default function Home() {
               />
 
             </div>
-            <p className="text-xs text-center text-gray-500 mt-3 font-medium">
-              Cảm ơn bạn rất nhiều! ❤️
+            <p className="text-xs text-center text-gray-500 mt-3 font-bold">
+              0905776151 - Zalo (Đình Quân)
             </p>
           </div>
         )}
