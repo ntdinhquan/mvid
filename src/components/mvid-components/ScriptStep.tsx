@@ -15,7 +15,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
   const hasAutoStarted = useRef(false);
   useEffect(() => {
     if (!hasAutoStarted.current && !project.script && !originalScript && (project.file || project.videoServerPath)) {
-      hasAutoStarted.current = true; /
+      hasAutoStarted.current = true;
       autoProcessPipeline();
     }
   }, []);
