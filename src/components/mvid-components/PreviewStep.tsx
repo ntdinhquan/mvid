@@ -12,13 +12,22 @@ export default function PreviewStep({ project, setProject, back }: any) {
     try {
       const formData = new FormData();
       formData.append("video_path", project.videoServerPath);
-      formData.append("script", project.script);
-      formData.append("voice", project.voice);
-      formData.append("rate", project.rate.toString());
+      
+      // KIỂM TRA LUỒNG: Dùng file thu âm hay dùng AI?
+      if (project.useAIVoice === false && project.customAudio) {
+        // Gửi file tự thu âm lên server
+        formData.append("custom_audio", project.customAudio, "record.webm");
+      } else {
+        // Gửi thông số cho AI đọc
+        formData.append("script", project.script || "");
+        formData.append("voice", project.voice || "");
+        formData.append("rate", (project.rate || 0).toString());
+      }
       
       formData.append("bgm_volume", (project.volume || 0).toString());
       formData.append("bgm_start", (project.bgmStart || 0).toString());
       formData.append("bgm_end", (project.bgmEnd || 0).toString());
+      
       if (project.bgm) {
         formData.append("bgm", project.bgm);
       }
@@ -34,8 +43,9 @@ export default function PreviewStep({ project, setProject, back }: any) {
       }
 
       const data = await res.json();
+      const noCacheUrl = `${data.output_url}?t=${new Date().getTime()}`;
       
-      setProject({ ...project, finalVideoUrl: data.output_url });
+      setProject({ ...project, finalVideoUrl: noCacheUrl });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -71,7 +81,7 @@ export default function PreviewStep({ project, setProject, back }: any) {
         <p className="text-sm text-gray-500">Xem lại cấu hình và xuất bản video voice-over</p>
       </div>
 
-      {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>}
+      {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium">❌ {error}</div>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* CỘT TRÁI: VIDEO PLAYER */}
@@ -80,8 +90,8 @@ export default function PreviewStep({ project, setProject, back }: any) {
           <div className="bg-black/5 p-4 rounded-2xl flex items-center justify-center min-h-[400px] border border-gray-200">
             {loading ? (
               <div className="flex flex-col items-center text-gray-500 animate-pulse">
-                <span className="text-4xl mb-2">⏳</span>
-                <p>Đang render video...</p>
+                <span className="text-4xl mb-2 animate-spin">⏳</span>
+                <p className="font-bold">Đang nấu video...</p>
                 <p className="text-xs mt-1">Quá trình này có thể mất 1-2 phút</p>
               </div>
             ) : project.finalVideoUrl ? (
@@ -94,7 +104,7 @@ export default function PreviewStep({ project, setProject, back }: any) {
               <div className="text-center text-gray-400">
                 <span className="text-4xl block mb-2">🎞️</span>
                 <p>Chưa có video.</p>
-                <p className="text-sm">Vui lòng bấm "Tạo Video" để bắt đầu ghép âm thanh.</p>
+                <p className="text-sm">Vui lòng bấm "Nấu video" để bắt đầu ghép âm thanh.</p>
               </div>
             )}
           </div>
@@ -102,25 +112,36 @@ export default function PreviewStep({ project, setProject, back }: any) {
 
         {/* CỘT PHẢI: SETTINGS INFO */}
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-gray-700">Settings</p>
+          <p className="text-sm font-semibold text-gray-700">Thông số đã chọn</p>
           <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 space-y-4 shadow-sm">
             
             <div className="flex justify-between items-center py-2 border-b border-gray-200">
-              <span className="text-gray-500 text-sm">Voice</span>
-              <span className="font-mono text-sm font-semibold">{project.voice || "Chưa chọn"}</span>
-            </div>
-            
-            <div className="flex justify-between items-center py-2 border-b border-gray-200">
-              <span className="text-gray-500 text-sm">Speed</span>
-              <span className="font-mono text-sm font-semibold text-blue-600">
-                {project.rate > 0 ? `+${project.rate}%` : `${project.rate}%`}
+              <span className="text-gray-500 text-sm">Nguồn giọng đọc</span>
+              <span className={`font-mono text-sm font-bold ${project.useAIVoice === false ? 'text-green-600' : 'text-blue-600'}`}>
+                {project.useAIVoice === false ? "🎙️ Tự thu âm" : "🤖 Giọng AI"}
               </span>
             </div>
             
+            {/* CHỈ HIỆN SETTING AI NẾU DÙNG AI */}
+            {project.useAIVoice !== false && (
+              <>
+                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span className="text-gray-500 text-sm">Mã giọng AI</span>
+                  <span className="font-mono text-sm font-semibold">{project.voice || "Chưa chọn"}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span className="text-gray-500 text-sm">Tốc độ (Speed)</span>
+                  <span className="font-mono text-sm font-semibold text-blue-600">
+                    {project.rate > 0 ? `+${project.rate}%` : `${project.rate}%`}
+                  </span>
+                </div>
+              </>
+            )}
+            
             <div className="flex justify-between items-center py-2 border-b border-gray-200">
-              <span className="text-gray-500 text-sm">Background Music</span>
-              <span className="font-mono text-sm font-semibold">
-                {project.bgm ? project.bgm.name : "Không"}
+              <span className="text-gray-500 text-sm">Nhạc nền (BGM)</span>
+              <span className="font-mono text-sm font-semibold max-w-[150px] truncate text-right">
+                {project.bgm ? project.bgm.name : "Không có"}
               </span>
             </div>
 
@@ -132,7 +153,7 @@ export default function PreviewStep({ project, setProject, back }: any) {
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-500 text-sm">BGM Volume</span>
-                  <span className="font-mono text-sm font-semibold text-green-600">{Math.round(project.volume * 100)}%</span>
+                  <span className="font-mono text-sm font-semibold text-green-600">{Math.round((project.volume || 0) * 100)}%</span>
                 </div>
               </>
             )}
@@ -145,15 +166,15 @@ export default function PreviewStep({ project, setProject, back }: any) {
               <button
                 onClick={handleGenerateVideo}
                 disabled={loading}
-                className="w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition disabled:opacity-50 shadow-md"
+                className="w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition disabled:opacity-50 shadow-md flex justify-center gap-2"
               >
-                🧑‍🍳 Nấu video
+                {loading ? "⏳ Đang xử lý..." : "🧑‍🍳 Nấu video ngay"}
               </button>
             ) : (
               <button
                 onClick={handleGenerateVideo}
                 disabled={loading}
-                className="w-full py-3 bg-white border-2 border-black text-black rounded-xl font-bold hover:bg-gray-50 transition disabled:opacity-50"
+                className="w-full py-3 bg-white border-2 border-black text-black rounded-xl font-bold hover:bg-gray-50 transition disabled:opacity-50 flex justify-center gap-2"
               >
                 🔄 Cập nhật thay đổi & Tạo lại
               </button>
