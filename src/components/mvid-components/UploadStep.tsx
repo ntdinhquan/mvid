@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { uploadVideo } from "@/services/uploads"
 
 export default function UploadStep({ project, setProject, next }: any) {
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -23,23 +24,15 @@ export default function UploadStep({ project, setProject, next }: any) {
     if (!link) return;
     setIsDownloading(true);
     try {
-      const formData = new FormData();
-      formData.append("url", link);
+    
+      const data = await uploadVideo(link);
 
-      // Gọi API tải video (đang test local thì dùng localhost)
-      const res = await fetch("https://quan2002-mvid-api.hf.space/download-url", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error("Không thể tải video từ link này");
-      const data = await res.json();
 
       setProject({
         ...project,
-        file: null, // Xóa file local nếu có
+        file: null,
         videoServerPath: data.video_path,
-        videoUrl: data.preview_url, // Link này để hiện video preview luôn
+        videoUrl: data.preview_url,
       });
     } catch (err: any) {
       alert(err.message);

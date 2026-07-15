@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
+import {getOriginalScript, translateScript, uploadOnly} from "@/services/script";
+
 export default function ScriptStep({ project, setProject, next, back }: any) {
   const [loadingStatus, setLoadingStatus] = useState(""); 
   const [loadingUpload, setLoadingUpload] = useState(false);
@@ -31,23 +33,13 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       // --- PHẦN 1: BÓC BĂNG ÂM THANH (STT) ---
       if (!currentOriginalText) {
         setLoadingStatus("🎧 Đang bóc băng âm thanh từ video...");
-        const formData = new FormData();
-        if (project.file) formData.append("file", project.file);
-        else formData.append("video_path", project.videoServerPath);
 
-        const resSTT = await fetch("https://quan2002-mvid-api.hf.space/get-original-script", {
-          method: "POST",
-          body: formData,
-          signal, 
-        });
+        const resSTT = await getOriginalScript(project.file, project.videoServerPath, signal);
 
-        if (!resSTT.ok) throw new Error("Lỗi khi bóc băng video. Vui lòng thử lại.");
-        
-        const dataSTT = await resSTT.json();
-        currentOriginalText = dataSTT.original_script;
+        currentOriginalText = resSTT.original_script;
         
         setOriginalScript(currentOriginalText);
-        setProject((prev: any) => ({ ...prev, videoServerPath: dataSTT.video_path })); 
+        setProject((prev: any) => ({ ...prev, videoServerPath: resSTT.video_path })); 
       }
 
       if (signal.aborted) throw new Error("AbortError");
@@ -55,23 +47,11 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       // --- PHẦN 2: DỊCH KỊCH BẢN ---
       if (project.geminiKey && currentOriginalText) {
         setLoadingStatus("✨ AI đang dịch sang Tiếng Việt...");
-        const formDataTrans = new FormData();
-        formDataTrans.append("text", currentOriginalText);
-        formDataTrans.append("api_key", project.geminiKey);
+ 
+        const resTrans = await translateScript(currentOriginalText, project.geminiKey, signal);
 
-        const resTrans = await fetch("https://quan2002-mvid-api.hf.space/translate-text", {
-          method: "POST",
-          body: formDataTrans,
-          signal, 
-        });
-
-        if (!resTrans.ok) {
-          const errData = await resTrans.json();
-          throw new Error(errData.detail || "Lỗi AI Gemini khi dịch.");
-        }
-
-        const dataTrans = await resTrans.json();
-        setProject((prev: any) => ({ ...prev, script: dataTrans.script }));
+       
+        setProject((prev: any) => ({ ...prev, script: resTrans.script }));
         // setDetectedLang(dataTrans.detected_language);
       } else if (!project.geminiKey) {
         setError("Bạn chưa nhập Gemini API Key nên hệ thống chỉ lấy được kịch bản gốc.");
@@ -114,11 +94,9 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       setLoadingUpload(true);
       setError("");
       try {
-        const formData = new FormData();
-        formData.append("file", project.file);
-        const res = await fetch("https://quan2002-mvid-api.hf.space/upload-only", { method: "POST", body: formData });
-        if (!res.ok) throw new Error("Lỗi tải video");
-        const data = await res.json();
+      
+        const data = await uploadOnly(project.file);
+
         setProject({ ...project, videoServerPath: data.video_path });
         next();
       } catch (err: any) { setError(err.message); } 

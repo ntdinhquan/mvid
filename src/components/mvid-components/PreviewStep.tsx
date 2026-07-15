@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 
+import { previewSteps } from "@/services/previewsteps";
+
 export default function PreviewStep({ project, setProject, back }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -10,41 +12,22 @@ export default function PreviewStep({ project, setProject, back }: any) {
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("video_path", project.videoServerPath);
-      
-      // KIỂM TRA LUỒNG: Dùng file thu âm hay dùng AI?
-      if (project.useAIVoice === false && project.customAudio) {
-        // Gửi file tự thu âm lên server
-        formData.append("custom_audio", project.customAudio, "record.webm");
-      } else {
-        // Gửi thông số cho AI đọc
-        formData.append("script", project.script || "");
-        formData.append("voice", project.voice || "");
-        formData.append("rate", (project.rate || 0).toString());
-      }
-      
-      formData.append("bgm_volume", (project.volume || 0).toString());
-      formData.append("bgm_start", (project.bgmStart || 0).toString());
-      formData.append("bgm_end", (project.bgmEnd || 0).toString());
-      
-      if (project.bgm) {
-        formData.append("bgm", project.bgm);
-      }
 
-      const res = await fetch("https://quan2002-mvid-api.hf.space/generate-video", {
-        method: "POST",
-        body: formData,
+      const res = await previewSteps({
+        videoServerPath: project.videoServerPath,
+        useAIVoice: project.useAIVoice !== false,
+        customAudio: project.customAudio,
+        script: project.script,
+        voice: project.voice,
+        rate: project.rate,
+        volume: project.volume,
+        bgmStart: project.bgmStart,
+        bgmEnd: project.bgmEnd,
+        bgm: project.bgm,
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Lỗi khi render video");
-      }
+      const noCacheUrl = `${res.output_url}?t=${new Date().getTime()}`;
 
-      const data = await res.json();
-      const noCacheUrl = `${data.output_url}?t=${new Date().getTime()}`;
-      
       setProject({ ...project, finalVideoUrl: noCacheUrl });
     } catch (err: any) {
       setError(err.message);
@@ -114,14 +97,14 @@ export default function PreviewStep({ project, setProject, back }: any) {
         <div className="space-y-3">
           <p className="text-sm font-semibold text-gray-700">Thông số đã chọn</p>
           <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 space-y-4 shadow-sm">
-            
+
             <div className="flex justify-between items-center py-2 border-b border-gray-200">
               <span className="text-gray-500 text-sm">Nguồn giọng đọc</span>
               <span className={`font-mono text-sm font-bold ${project.useAIVoice === false ? 'text-green-600' : 'text-blue-600'}`}>
                 {project.useAIVoice === false ? "🎙️ Tự thu âm" : "🤖 Giọng AI"}
               </span>
             </div>
-            
+
             {/* CHỈ HIỆN SETTING AI NẾU DÙNG AI */}
             {project.useAIVoice !== false && (
               <>
@@ -137,7 +120,7 @@ export default function PreviewStep({ project, setProject, back }: any) {
                 </div>
               </>
             )}
-            
+
             <div className="flex justify-between items-center py-2 border-b border-gray-200">
               <span className="text-gray-500 text-sm">Nhạc nền (BGM)</span>
               <span className="font-mono text-sm font-semibold max-w-[150px] truncate text-right">

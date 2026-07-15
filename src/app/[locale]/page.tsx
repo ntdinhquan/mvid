@@ -1,6 +1,5 @@
 "use client";
 
-import { Selector } from "@/components/selector/Selector";
 import Header from "@/components/layout/Header";
 
 import ScriptStep from "@/components/mvid-components/ScriptStep";

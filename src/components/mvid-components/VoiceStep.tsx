@@ -1,6 +1,8 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 
+import {voiceResponse} from "@/services/voice";
+
 export default function VoiceStep({ project, setProject, next, back }: any) {
   const [loading, setLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -47,19 +49,9 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("text", project.script);
-      formData.append("voice", project.voice);
-      formData.append("rate", (project.rate || 0).toString());
 
-      const res = await fetch("https://quan2002-mvid-api.hf.space/preview-voice", {
-        method: "POST",
-        body: formData,
-      });
+      const blob = await voiceResponse(project.script, project.voice, project.rate);
 
-      if (!res.ok) throw new Error("Không thể tải âm thanh nghe thử");
-
-      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       stopAudio(); 
       const audio = new Audio(url);
