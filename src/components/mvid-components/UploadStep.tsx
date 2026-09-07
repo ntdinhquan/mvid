@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { API_BASE_URL } from "@/lib/api"
 
 export default function UploadStep({ project, setProject, next }: any) {
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -26,8 +27,7 @@ export default function UploadStep({ project, setProject, next }: any) {
       const formData = new FormData();
       formData.append("url", link);
 
-      // Gọi API tải video (đang test local thì dùng localhost)
-      const res = await fetch("https://quan2002-mvid-api.hf.space/download-url", {
+      const res = await fetch(`${API_BASE_URL}/download-url`, {
         method: "POST",
         body: formData,
       });

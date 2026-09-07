@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function ScriptStep({ project, setProject, next, back }: any) {
   const [loadingStatus, setLoadingStatus] = useState(""); 
@@ -35,7 +36,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
         if (project.file) formData.append("file", project.file);
         else formData.append("video_path", project.videoServerPath);
 
-        const resSTT = await fetch("https://quan2002-mvid-api.hf.space/get-original-script", {
+        const resSTT = await fetch(`${API_BASE_URL}/get-original-script`, {
           method: "POST",
           body: formData,
           signal, 
@@ -59,7 +60,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
         formDataTrans.append("text", currentOriginalText);
         formDataTrans.append("api_key", project.geminiKey);
 
-        const resTrans = await fetch("https://quan2002-mvid-api.hf.space/translate-text", {
+        const resTrans = await fetch(`${API_BASE_URL}/translate-text`, {
           method: "POST",
           body: formDataTrans,
           signal, 
@@ -116,7 +117,7 @@ export default function ScriptStep({ project, setProject, next, back }: any) {
       try {
         const formData = new FormData();
         formData.append("file", project.file);
-        const res = await fetch("https://quan2002-mvid-api.hf.space/upload-only", { method: "POST", body: formData });
+        const res = await fetch(`${API_BASE_URL}/upload-only`, { method: "POST", body: formData });
         if (!res.ok) throw new Error("Lỗi tải video");
         const data = await res.json();
         setProject({ ...project, videoServerPath: data.video_path });

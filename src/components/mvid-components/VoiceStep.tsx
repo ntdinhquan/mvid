@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function VoiceStep({ project, setProject, next, back }: any) {
   const [loading, setLoading] = useState(false);
@@ -20,10 +21,19 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
   const voices = [
     { id: "vi-VN-HoaiMyNeural", label: "🇻🇳 Nữ - Hoài My (Mặc định)" },
     { id: "vi-VN-NamMinhNeural", label: "🇻🇳 Nam - Nam Minh" },
+    { id: "vietvoice:female:northern", label: "🇻🇳 Nữ - Giọng Bắc (VietVoice)" },
+    { id: "vietvoice:male:northern", label: "🇻🇳 Nam - Giọng Bắc (VietVoice)" },
+    { id: "vietvoice:female:central", label: "🇻🇳 Nữ - Giọng Trung (VietVoice)" },
+    { id: "vietvoice:male:central", label: "🇻🇳 Nam - Giọng Trung (VietVoice)" },
+    { id: "vietvoice:female:southern", label: "🇻🇳 Nữ - Giọng Nam (VietVoice)" },
+    { id: "vietvoice:male:southern", label: "🇻🇳 Nam - Giọng Nam (VietVoice)" },
     { id: "en-US-AriaNeural", label: "🇺🇸 Nữ - Aria (English US)" },
     { id: "en-US-GuyNeural", label: "🇺🇸 Nam - Guy (English US)" },
     { id: "zh-CN-XiaoxiaoNeural", label: "🇨🇳 Nữ - Xiaoxiao (Chinese)" },
   ];
+
+  // Giọng VietVoice chưa hỗ trợ chỉnh tốc độ đọc theo từng request
+  const isRateSupported = !project.voice?.startsWith("vietvoice:");
 
   const stopAudio = () => {
     if (audioRef.current) {
@@ -52,7 +62,7 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
       formData.append("voice", project.voice);
       formData.append("rate", (project.rate || 0).toString());
 
-      const res = await fetch("https://quan2002-mvid-api.hf.space/preview-voice", {
+      const res = await fetch(`${API_BASE_URL}/preview-voice`, {
         method: "POST",
         body: formData,
       });
@@ -181,20 +191,24 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
             </select>
           </div>
 
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700 flex justify-between">
-              <span>Tốc độ đọc (Rate)</span>
-              <span className="text-black font-bold">
-                {project.rate > 0 ? `+${project.rate}%` : `${project.rate}%`}
-              </span>
-            </label>
-            <input
-              type="range" min="-50" max="50" step="5"
-              value={project.rate}
-              onChange={(e) => setProject({ ...project, rate: parseInt(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-            />
-          </div>
+          {isRateSupported ? (
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-gray-700 flex justify-between">
+                <span>Tốc độ đọc (Rate)</span>
+                <span className="text-black font-bold">
+                  {project.rate > 0 ? `+${project.rate}%` : `${project.rate}%`}
+                </span>
+              </label>
+              <input
+                type="range" min="-50" max="50" step="5"
+                value={project.rate}
+                onChange={(e) => setProject({ ...project, rate: parseInt(e.target.value) })}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+              />
+            </div>
+          ) : (
+            <p className="text-xs text-gray-400 italic">Giọng VietVoice chưa hỗ trợ điều chỉnh tốc độ đọc.</p>
+          )}
         </div>
       ) : (
         <div className="space-y-6 bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">

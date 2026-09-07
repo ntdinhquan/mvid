@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function PreviewStep({ project, setProject, back }: any) {
   const [loading, setLoading] = useState(false);
@@ -32,7 +33,7 @@ export default function PreviewStep({ project, setProject, back }: any) {
         formData.append("bgm", project.bgm);
       }
 
-      const res = await fetch("https://quan2002-mvid-api.hf.space/generate-video", {
+      const res = await fetch(`${API_BASE_URL}/generate-video`, {
         method: "POST",
         body: formData,
       });
