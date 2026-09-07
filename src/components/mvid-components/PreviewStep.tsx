@@ -23,6 +23,10 @@ export default function PreviewStep({ project, setProject, back }: any) {
         formData.append("script", project.script || "");
         formData.append("voice", project.voice || "");
         formData.append("rate", (project.rate || 0).toString());
+        formData.append("pitch", (project.pitch || 0).toString());
+        formData.append("tone", (project.tone || 0).toString());
+        formData.append("reverb", (project.reverb || 0).toString());
+        formData.append("effect", project.effect || "none");
       }
       
       formData.append("bgm_volume", (project.volume || 0).toString());
@@ -136,6 +140,40 @@ export default function PreviewStep({ project, setProject, back }: any) {
                     {project.rate > 0 ? `+${project.rate}%` : `${project.rate}%`}
                   </span>
                 </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span className="text-gray-500 text-sm">Cao độ (Pitch)</span>
+                  <span className="font-mono text-sm font-semibold text-blue-600">
+                    {project.pitch > 0 ? `+${project.pitch}` : (project.pitch || 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span className="text-gray-500 text-sm">Tông màu âm (Tone)</span>
+                  <span className="font-mono text-sm font-semibold text-blue-600">
+                    {project.tone > 0 ? `+${project.tone}` : (project.tone || 0)}
+                  </span>
+                </div>
+                {project.reverb > 0 && (
+                  <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span className="text-gray-500 text-sm">Độ vang (Reverb)</span>
+                    <span className="font-mono text-sm font-semibold text-blue-600">{project.reverb}%</span>
+                  </div>
+                )}
+                {project.effect && project.effect !== "none" && (
+                  <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span className="text-gray-500 text-sm">Hiệu ứng</span>
+                    <span className="font-mono text-sm font-semibold text-blue-600">
+                      {
+                        {
+                          robot: "🤖 Robot",
+                          chorus: "👥 Chorus",
+                          lofi: "📻 Lo-fi/Radio cũ",
+                          ghost: "👻 Ma quái/Dưới nước",
+                          telephone: "📞 Điện thoại",
+                        }[project.effect as string] || project.effect
+                      }
+                    </span>
+                  </div>
+                )}
               </>
             )}
             

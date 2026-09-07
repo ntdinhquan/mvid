@@ -21,19 +21,32 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
   const voices = [
     { id: "vi-VN-HoaiMyNeural", label: "🇻🇳 Nữ - Hoài My (Mặc định)" },
     { id: "vi-VN-NamMinhNeural", label: "🇻🇳 Nam - Nam Minh" },
-    { id: "vietvoice:female:northern", label: "🇻🇳 Nữ - Giọng Bắc (VietVoice)" },
-    { id: "vietvoice:male:northern", label: "🇻🇳 Nam - Giọng Bắc (VietVoice)" },
-    { id: "vietvoice:female:central", label: "🇻🇳 Nữ - Giọng Trung (VietVoice)" },
-    { id: "vietvoice:male:central", label: "🇻🇳 Nam - Giọng Trung (VietVoice)" },
-    { id: "vietvoice:female:southern", label: "🇻🇳 Nữ - Giọng Nam (VietVoice)" },
-    { id: "vietvoice:male:southern", label: "🇻🇳 Nam - Giọng Nam (VietVoice)" },
     { id: "en-US-AriaNeural", label: "🇺🇸 Nữ - Aria (English US)" },
     { id: "en-US-GuyNeural", label: "🇺🇸 Nam - Guy (English US)" },
     { id: "zh-CN-XiaoxiaoNeural", label: "🇨🇳 Nữ - Xiaoxiao (Chinese)" },
   ];
 
-  // Giọng VietVoice chưa hỗ trợ chỉnh tốc độ đọc theo từng request
-  const isRateSupported = !project.voice?.startsWith("vietvoice:");
+  // Preset dựng sẵn: chọn 1 cái là tự điền Pitch/Tone/Reverb/Effect, sau đó
+  // vẫn chỉnh tay từng thanh trượt bên dưới được nếu muốn tinh chỉnh thêm.
+  const voicePresets = [
+    { id: "teen", label: "🧒 Trẻ em / Hoạt hình", pitch: 5, tone: 6, reverb: 0, effect: "none" },
+    { id: "elder", label: "👴 Cụ già", pitch: -4, tone: -6, reverb: 10, effect: "none" },
+    { id: "deep_male", label: "🧔 Nam trầm ấm", pitch: -3, tone: -4, reverb: 0, effect: "none" },
+    { id: "bright_female", label: "👩 Nữ trong trẻo, năng động", pitch: 2, tone: 5, reverb: 0, effect: "none" },
+    { id: "news", label: "📰 Phát thanh viên / Tin tức", pitch: 0, tone: 2, reverb: 0, effect: "none" },
+    { id: "ads", label: "📢 Hoạt náo viên / Quảng cáo", pitch: 1, tone: 6, reverb: 0, effect: "none" },
+    { id: "story", label: "📖 Kể chuyện đêm khuya", pitch: -2, tone: -5, reverb: 20, effect: "none" },
+    { id: "mystery", label: "👻 Bí ẩn, ma mị", pitch: -2, tone: -3, reverb: 30, effect: "ghost" },
+  ];
+  const [selectedPreset, setSelectedPreset] = useState("");
+
+  const applyPreset = (presetId: string) => {
+    setSelectedPreset(presetId);
+    const preset = voicePresets.find((p) => p.id === presetId);
+    if (preset) {
+      setProject({ ...project, pitch: preset.pitch, tone: preset.tone, reverb: preset.reverb, effect: preset.effect });
+    }
+  };
 
   const stopAudio = () => {
     if (audioRef.current) {
@@ -61,6 +74,10 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
       formData.append("text", project.script);
       formData.append("voice", project.voice);
       formData.append("rate", (project.rate || 0).toString());
+      formData.append("pitch", (project.pitch || 0).toString());
+      formData.append("tone", (project.tone || 0).toString());
+      formData.append("reverb", (project.reverb || 0).toString());
+      formData.append("effect", project.effect || "none");
 
       const res = await fetch(`${API_BASE_URL}/preview-voice`, {
         method: "POST",
@@ -191,24 +208,104 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
             </select>
           </div>
 
-          {isRateSupported ? (
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700 flex justify-between">
-                <span>Tốc độ đọc (Rate)</span>
-                <span className="text-black font-bold">
-                  {project.rate > 0 ? `+${project.rate}%` : `${project.rate}%`}
-                </span>
-              </label>
-              <input
-                type="range" min="-50" max="50" step="5"
-                value={project.rate}
-                onChange={(e) => setProject({ ...project, rate: parseInt(e.target.value) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-              />
-            </div>
-          ) : (
-            <p className="text-xs text-gray-400 italic">Giọng VietVoice chưa hỗ trợ điều chỉnh tốc độ đọc.</p>
-          )}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Biến giọng nhanh (Preset)</label>
+            <select
+              value={selectedPreset}
+              onChange={(e) => applyPreset(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black outline-none bg-white cursor-pointer transition"
+            >
+              <option value="" disabled>-- Chọn 1 kiểu giọng có sẵn --</option>
+              {voicePresets.map((p) => (
+                <option key={p.id} value={p.id}>{p.label}</option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-400 italic">
+              Chọn 1 preset để tự điền các thanh trượt bên dưới, sau đó vẫn chỉnh tay thêm được nếu muốn.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 flex justify-between">
+              <span>Tốc độ đọc (Rate)</span>
+              <span className="text-black font-bold">
+                {project.rate > 0 ? `+${project.rate}%` : `${project.rate}%`}
+              </span>
+            </label>
+            <input
+              type="range" min="-50" max="50" step="5"
+              value={project.rate}
+              onChange={(e) => setProject({ ...project, rate: parseInt(e.target.value) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 flex justify-between">
+              <span>Cao độ giọng — Trầm ↔ Cao</span>
+              <span className="text-black font-bold">{project.pitch > 0 ? `+${project.pitch}` : project.pitch}</span>
+            </label>
+            <input
+              type="range" min="-6" max="6" step="1"
+              value={project.pitch || 0}
+              onChange={(e) => setProject({ ...project, pitch: parseInt(e.target.value) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+            />
+            <p className="text-xs text-gray-400 italic">
+              Kéo trái để giọng trầm/ồm hơn, kéo phải để giọng cao/thanh hơn. Đổi cao độ giọng thật (nghe như người khác), giữ nguyên tốc độ nói.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 flex justify-between">
+              <span>Tông màu âm — Ấm ↔ Sáng</span>
+              <span className="text-black font-bold">{project.tone > 0 ? `+${project.tone}` : project.tone}</span>
+            </label>
+            <input
+              type="range" min="-10" max="10" step="1"
+              value={project.tone || 0}
+              onChange={(e) => setProject({ ...project, tone: parseInt(e.target.value) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+            />
+            <p className="text-xs text-gray-400 italic">
+              Kéo trái để giọng ấm/dày hơn (hợp đọc truyện, tâm sự), kéo phải để sáng/sắc hơn (hợp video năng động, quảng cáo). Không đổi cao độ giọng.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 flex justify-between">
+              <span>Độ vang (Reverb)</span>
+              <span className="text-black font-bold">{project.reverb || 0}%</span>
+            </label>
+            <input
+              type="range" min="0" max="100" step="10"
+              value={project.reverb || 0}
+              onChange={(e) => setProject({ ...project, reverb: parseInt(e.target.value) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+            />
+            <p className="text-xs text-gray-400 italic">
+              0% = không vang. Kéo phải để giọng vang xa hơn, hợp video kịch, hồi tưởng, hội trường. Dùng chung được với Hiệu ứng đặc biệt bên dưới.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Hiệu ứng đặc biệt</label>
+            <select
+              value={project.effect || "none"}
+              onChange={(e) => setProject({ ...project, effect: e.target.value })}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black outline-none bg-white cursor-pointer transition"
+            >
+              <option value="none">Không có</option>
+              <option value="robot">🤖 Robot — giọng máy móc, rung đều</option>
+              <option value="chorus">👥 Chorus — dày giọng, như nhiều người nói</option>
+              <option value="lofi">📻 Lo-fi/Radio cũ — rè như đài cũ, băng cassette</option>
+              <option value="ghost">👻 Ma quái/Dưới nước — rung, bí ẩn</option>
+              <option value="telephone">📞 Điện thoại — lọc dải tần, hợp lồng tiếng cuộc gọi</option>
+            </select>
+            <p className="text-xs text-gray-400 italic">
+              Ngoài ra mọi giọng AI đều tự động được chuẩn hóa âm lượng, làm đều tiếng to/nhỏ và giảm tiếng rít — không cần chỉnh thêm.
+            </p>
+          </div>
         </div>
       ) : (
         <div className="space-y-6 bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
