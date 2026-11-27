@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { apiFetch } from "@/lib/api"
 
 // Đổi/gỡ video thì phải xoá kết quả của video cũ, nếu không sẽ render nhầm video hoặc lệch thời gian
-const RESET_VIDEO_STATE = { videoServerPath: "", script: "", segments: [], finalVideoUrl: "" }
+const RESET_VIDEO_STATE = { videoServerPath: "", script: "", segments: [], finalVideoUrl: "", finalSrtUrl: "" }
 
 export default function UploadStep({ project, setProject, next }: any) {
   const inputRef = useRef<HTMLInputElement | null>(null)

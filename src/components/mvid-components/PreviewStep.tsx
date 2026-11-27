@@ -53,7 +53,11 @@ export default function PreviewStep({ project, setProject, back }: any) {
       const noCacheUrl = `${videoUrl}?t=${new Date().getTime()}`;
 
       setTiming(data.timing || null);
-      setProject((prev: any) => ({ ...prev, finalVideoUrl: noCacheUrl }));
+      setProject((prev: any) => ({
+        ...prev,
+        finalVideoUrl: noCacheUrl,
+        finalSrtUrl: data.srt_path ? `${API_BASE}${data.srt_path}` : "",
+      }));
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -61,23 +65,29 @@ export default function PreviewStep({ project, setProject, back }: any) {
     }
   };
 
-  const handleDownload = async () => {
-    if (!project.finalVideoUrl) return;
+  const downloadFile = async (fileUrl: string, filename: string, errorMsg: string) => {
+    if (!fileUrl) return;
     try {
-      // Giữ thanh loading cho tới khi tải xong cả file video
-      const blob = await withLoading(async () => (await fetch(project.finalVideoUrl)).blob());
+      // Giữ thanh loading cho tới khi tải xong cả file
+      const blob = await withLoading(async () => (await fetch(fileUrl)).blob());
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `MVID_Render_${new Date().getTime()}.mp4`;
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      alert("Lỗi khi tải video xuống!");
+      alert(errorMsg);
     }
   };
+
+  const handleDownload = () =>
+    downloadFile(project.finalVideoUrl, `MVID_Render_${Date.now()}.mp4`, "Lỗi khi tải video xuống!");
+
+  const handleDownloadSrt = () =>
+    downloadFile(project.finalSrtUrl, `MVID_Render_${Date.now()}.srt`, "Lỗi khi tải phụ đề xuống!");
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
@@ -214,13 +224,24 @@ export default function PreviewStep({ project, setProject, back }: any) {
           ← Quay về sửa
         </button>
 
-        <button
-          onClick={handleDownload}
-          disabled={!project.finalVideoUrl || loading}
-          className="px-8 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-40 font-bold shadow-md flex items-center gap-2"
-        >
-          ⬇ Tải Video Về Máy
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Phụ đề chỉ có khi dùng giọng AI (bản tự thu âm không có mốc thời gian theo câu) */}
+          <button
+            onClick={handleDownloadSrt}
+            disabled={!project.finalSrtUrl || loading}
+            title={project.finalSrtUrl ? "Phụ đề tiếng Việt khớp giọng đọc — mở được bằng CapCut, VLC..." : "Chỉ có khi dùng giọng AI"}
+            className="px-5 py-2.5 border-2 border-green-600 text-green-700 rounded-lg hover:bg-green-50 transition disabled:opacity-40 font-bold flex items-center gap-2"
+          >
+            📝 Tải phụ đề (.srt)
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={!project.finalVideoUrl || loading}
+            className="px-8 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-40 font-bold shadow-md flex items-center gap-2"
+          >
+            ⬇ Tải Video Về Máy
+          </button>
+        </div>
       </div>
     </div>
   );
