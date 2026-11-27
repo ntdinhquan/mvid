@@ -2,6 +2,7 @@
 
 import { Selector } from "@/components/selector/Selector";
 import Header from "@/components/layout/Header";
+import TopLoadingBar from "@/components/layout/TopLoadingBar";
 
 import ScriptStep from "@/components/mvid-components/ScriptStep";
 import Stepper from "@/components/mvid-components/Stepper";
@@ -24,6 +25,7 @@ export default function Home() {
     videoServerPath: "",
     geminiKey: "",
     script: "",
+    segments: [], // [{start, end, text}] — mốc thời gian từng câu trong video gốc
     voice: "vi-VN-HoaiMyNeural",
     rate: 0,
     bgm: null,
@@ -43,6 +45,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 relative">
+      <TopLoadingBar />
       <Header />
 
       <main className="flex flex-1 justify-center items-start py-10 px-4">

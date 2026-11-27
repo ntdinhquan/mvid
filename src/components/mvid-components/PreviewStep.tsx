@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { API_BASE, apiFetch, readError, withLoading, type Segment } from "@/lib/api";
 
 export default function PreviewStep({ project, setProject, back }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [timing, setTiming] = useState<any>(null);
 
   const handleGenerateVideo = async () => {
     setLoading(true);
@@ -22,6 +24,13 @@ export default function PreviewStep({ project, setProject, back }: any) {
         formData.append("script", project.script || "");
         formData.append("voice", project.voice || "");
         formData.append("rate", (project.rate || 0).toString());
+        // Mốc thời gian từng đoạn để giọng đọc khớp hình (backend tự bỏ qua nếu số dòng không khớp)
+        if (project.segments?.length) {
+          formData.append(
+            "segments",
+            JSON.stringify(project.segments.map(({ start, end }: Segment) => ({ start, end })))
+          );
+        }
       }
       
       formData.append("bgm_volume", (project.volume || 0).toString());
@@ -32,20 +41,19 @@ export default function PreviewStep({ project, setProject, back }: any) {
         formData.append("bgm", project.bgm);
       }
 
-      const res = await fetch("https://quan2002-mvid-api.hf.space/generate-video", {
+      const res = await apiFetch("/generate-video", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Lỗi khi render video");
-      }
+      if (!res.ok) throw new Error(await readError(res, "Lỗi khi render video"));
 
       const data = await res.json();
-      const noCacheUrl = `${data.output_url}?t=${new Date().getTime()}`;
-      
-      setProject({ ...project, finalVideoUrl: noCacheUrl });
+      const videoUrl = data.output_path ? `${API_BASE}${data.output_path}` : data.output_url;
+      const noCacheUrl = `${videoUrl}?t=${new Date().getTime()}`;
+
+      setTiming(data.timing || null);
+      setProject((prev: any) => ({ ...prev, finalVideoUrl: noCacheUrl }));
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -56,8 +64,8 @@ export default function PreviewStep({ project, setProject, back }: any) {
   const handleDownload = async () => {
     if (!project.finalVideoUrl) return;
     try {
-      const response = await fetch(project.finalVideoUrl);
-      const blob = await response.blob();
+      // Giữ thanh loading cho tới khi tải xong cả file video
+      const blob = await withLoading(async () => (await fetch(project.finalVideoUrl)).blob());
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -82,6 +90,19 @@ export default function PreviewStep({ project, setProject, back }: any) {
       </div>
 
       {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium">❌ {error}</div>}
+
+      {/* BÁO CÁO KHỚP THỜI GIAN */}
+      {timing && !loading && timing.mode !== "record" && (
+        <div className={`p-3 rounded-lg text-sm font-medium ${timing.mode === "timed" && !timing.overflow_seconds ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+          {timing.mode === "timed"
+            ? `⏱️ Đã đọc ${timing.segments} đoạn theo đúng mốc thời gian.`
+            : timing.video_segments
+              ? `⏱️ Kịch bản có ${timing.script_lines} dòng nhưng video có ${timing.video_segments} đoạn nên được đọc liền mạch. Quay lại bước Kịch bản, sửa cho đủ 1 dòng/đoạn (hoặc bấm "Dịch lại") để giọng khớp hình.`
+              : "⏱️ Không có mốc thời gian của video (chưa bóc băng) nên kịch bản được đọc liền mạch."}
+          {timing.sped_up > 0 && ` ${timing.sped_up} đoạn phải đọc nhanh hơn (tối đa x${timing.max_tempo}) để vừa khung — nên rút gọn câu ở các đoạn này.`}
+          {timing.overflow_seconds > 0 && ` Giọng đọc dài hơn video ${timing.overflow_seconds}s nên khung hình cuối được kéo dài.`}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* CỘT TRÁI: VIDEO PLAYER */}

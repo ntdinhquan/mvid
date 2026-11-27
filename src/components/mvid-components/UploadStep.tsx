@@ -1,6 +1,10 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { apiFetch } from "@/lib/api"
+
+// Đổi/gỡ video thì phải xoá kết quả của video cũ, nếu không sẽ render nhầm video hoặc lệch thời gian
+const RESET_VIDEO_STATE = { videoServerPath: "", script: "", segments: [], finalVideoUrl: "" }
 
 export default function UploadStep({ project, setProject, next }: any) {
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -13,6 +17,7 @@ export default function UploadStep({ project, setProject, next }: any) {
   const handleFile = (file: File) => {
     setProject({
       ...project,
+      ...RESET_VIDEO_STATE,
       file,
       videoUrl: URL.createObjectURL(file)
     })
@@ -27,7 +32,7 @@ export default function UploadStep({ project, setProject, next }: any) {
       formData.append("url", link);
 
       // Gọi API tải video (đang test local thì dùng localhost)
-      const res = await fetch("https://quan2002-mvid-api.hf.space/download-url", {
+      const res = await apiFetch("/download-url", {
         method: "POST",
         body: formData,
       });
@@ -37,6 +42,7 @@ export default function UploadStep({ project, setProject, next }: any) {
 
       setProject({
         ...project,
+        ...RESET_VIDEO_STATE,
         file: null, // Xóa file local nếu có
         videoServerPath: data.video_path,
         videoUrl: data.preview_url, // Link này để hiện video preview luôn
@@ -203,7 +209,7 @@ export default function UploadStep({ project, setProject, next }: any) {
 
             <button
               onClick={() =>
-                setProject({ ...project, file: null, videoUrl: "" })
+                setProject({ ...project, ...RESET_VIDEO_STATE, file: null, videoUrl: "" })
               }
               className="text-sm font-semibold text-red-500 hover:text-red-700 transition px-2 py-1 bg-red-50 hover:bg-red-100 rounded"
             >

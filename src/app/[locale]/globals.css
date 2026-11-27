@@ -120,3 +120,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Thanh loading chạy ngang (TopLoadingBar) */
+@keyframes top-loading-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+.top-loading-bar {
+  animation: top-loading-slide 1.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .top-loading-bar {
+    animation: none;
+    width: 100%;
+  }
+}

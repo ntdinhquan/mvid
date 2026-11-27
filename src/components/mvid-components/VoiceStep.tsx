@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { apiFetch, readError } from "@/lib/api";
 
 export default function VoiceStep({ project, setProject, next, back }: any) {
   const [loading, setLoading] = useState(false);
@@ -17,12 +18,72 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  const voices = [
-    { id: "vi-VN-HoaiMyNeural", label: "🇻🇳 Nữ - Hoài My (Mặc định)" },
-    { id: "vi-VN-NamMinhNeural", label: "🇻🇳 Nam - Nam Minh" },
-    { id: "en-US-AriaNeural", label: "🇺🇸 Nữ - Aria (English US)" },
-    { id: "en-US-GuyNeural", label: "🇺🇸 Nam - Guy (English US)" },
-    { id: "zh-CN-XiaoxiaoNeural", label: "🇨🇳 Nữ - Xiaoxiao (Chinese)" },
+  // id "vieneu:<tên>" chạy bằng VieNeu trên server; còn lại chạy bằng edge-tts (Microsoft)
+  const voiceGroups = [
+    {
+      group: "⭐ Giọng chính",
+      voices: [
+        { id: "vi-VN-HoaiMyNeural", label: "Nữ - Hoài My (Mặc định)" },
+        { id: "vi-VN-NamMinhNeural", label: "Nam - Nam Minh" },
+        { id: "vieneu:clone-1", label: "🎙️ Giọng nhân bản" },
+      ],
+    },
+    {
+      group: "VieNeu - Giọng Bắc",
+      voices: [
+        { id: "vieneu:Mai Anh", label: "Nữ - Mai Anh (tin tức)" },
+        { id: "vieneu:Trúc Ly", label: "Nữ - Trúc Ly (tự nhiên)" },
+        { id: "vieneu:Ngọc Huyền", label: "Nữ - Ngọc Huyền (tự nhiên)" },
+        { id: "vieneu:Đoan Trang", label: "Nữ - Đoan Trang (tự nhiên)" },
+        { id: "vieneu:Ngọc Linh", label: "Nữ - Ngọc Linh (kể chuyện)" },
+        { id: "vieneu:Quỳnh Anh", label: "Nữ - Quỳnh Anh (đọc truyện)" },
+        { id: "vieneu:Hải Đăng", label: "Nam - Hải Đăng (tự nhiên)" },
+        { id: "vieneu:Phạm Tuyên", label: "Nam - Phạm Tuyên (tự nhiên)" },
+        { id: "vieneu:Xuân Vĩnh", label: "Nam - Xuân Vĩnh (tự nhiên)" },
+        { id: "vieneu:Quốc Tuấn", label: "Nam - Quốc Tuấn (tự nhiên)" },
+        { id: "vieneu:Adam bựa", label: "Nam - Adam bựa (tự nhiên, hài hước)" },
+        { id: "vieneu:Minh Đức", label: "Nam - Minh Đức (tin tức)" },
+        { id: "vieneu:Thiện Minh", label: "Nam - Thiện Minh (kể chuyện)" },
+        { id: "vieneu:Thanh Bình", label: "Nam - Thanh Bình (kể chuyện)" },
+        { id: "vieneu:Thiền Tâm Đức", label: "Nam - Thiền Tâm Đức (kể chuyện)" },
+      ],
+    },
+    {
+      group: "VieNeu - Giọng Trung",
+      voices: [
+        { id: "vieneu:Ngọc Trân", label: "Nữ - Ngọc Trân (tự nhiên)" },
+        { id: "vieneu:Quang Sơn", label: "Nam - Quang Sơn (tự nhiên)" },
+      ],
+    },
+    {
+      group: "VieNeu - Giọng Nam",
+      voices: [
+        { id: "vieneu:Thùy Dung", label: "Nữ - Thùy Dung (tin tức)" },
+        { id: "vieneu:Thục Đoan", label: "Nữ - Thục Đoan (kể chuyện)" },
+        { id: "vieneu:Mỹ Duyên", label: "Nữ - Mỹ Duyên (đọc truyện)" },
+        { id: "vieneu:Kim Thanh", label: "Nữ - Kim Thanh (đọc truyện)" },
+        { id: "vieneu:Adam", label: "Nam - Adam (tự nhiên)" },
+        { id: "vieneu:Minh Triết", label: "Nam - Minh Triết (tin tức)" },
+        { id: "vieneu:Thái Sơn", label: "Nam - Thái Sơn (kể chuyện)" },
+        { id: "vieneu:Đức Trí", label: "Nam - Đức Trí (đọc truyện)" },
+      ],
+    },
+    {
+      // Giọng Microsoft đa ngôn ngữ: tự đọc được tiếng Việt, nhưng có chất giọng người nước ngoài
+      group: "🌍 Giọng nước ngoài nói tiếng Việt",
+      voices: [
+        { id: "en-US-AvaMultilingualNeural", label: "🇺🇸 Nữ - Ava" },
+        { id: "en-US-EmmaMultilingualNeural", label: "🇺🇸 Nữ - Emma" },
+        { id: "en-US-AndrewMultilingualNeural", label: "🇺🇸 Nam - Andrew" },
+        { id: "en-US-BrianMultilingualNeural", label: "🇺🇸 Nam - Brian" },
+        { id: "en-AU-WilliamMultilingualNeural", label: "🇦🇺 Nam - William" },
+        { id: "fr-FR-VivienneMultilingualNeural", label: "🇫🇷 Nữ - Vivienne" },
+        { id: "fr-FR-RemyMultilingualNeural", label: "🇫🇷 Nam - Remy" },
+        { id: "it-IT-GiuseppeMultilingualNeural", label: "🇮🇹 Nam - Giuseppe" },
+        { id: "pt-BR-ThalitaMultilingualNeural", label: "🇧🇷 Nữ - Thalita" },
+        { id: "ko-KR-HyunsuMultilingualNeural", label: "🇰🇷 Nam - Hyunsu" },
+      ],
+    },
   ];
 
   const stopAudio = () => {
@@ -52,12 +113,12 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
       formData.append("voice", project.voice);
       formData.append("rate", (project.rate || 0).toString());
 
-      const res = await fetch("https://quan2002-mvid-api.hf.space/preview-voice", {
+      const res = await apiFetch("/preview-voice", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Không thể tải âm thanh nghe thử");
+      if (!res.ok) throw new Error(await readError(res, "Không thể tải âm thanh nghe thử"));
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -175,8 +236,12 @@ export default function VoiceStep({ project, setProject, next, back }: any) {
               onChange={(e) => setProject({ ...project, voice: e.target.value })}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black outline-none bg-white cursor-pointer transition"
             >
-              {voices.map((v) => (
-                <option key={v.id} value={v.id}>{v.label}</option>
+              {voiceGroups.map((g) => (
+                <optgroup key={g.group} label={g.group}>
+                  {g.voices.map((v) => (
+                    <option key={v.id} value={v.id}>{v.label}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
